@@ -6,6 +6,16 @@ Permite descargar Reels de Instagram mediante enlace o subir videos ya guardados
 
 ---
 
+## 🚀 Despliegue en la Nube 24/7 (1 Clic y Gratis)
+
+Para que funcione **siempre en internet sin depender de que tu PC esté encendida**, haz clic en cualquiera de estos botones para desplegarlo gratis:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/I4ma1k/reels-cleaner)
+&nbsp;
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=https://github.com/I4ma1k/reels-cleaner&name=reels-cleaner&ports=5050;http;/&env[PORT]=5050)
+
+---
+
 ## 🚀 Características Principales
 
 - **📱 100% Optimizado para Móviles y PC**:
