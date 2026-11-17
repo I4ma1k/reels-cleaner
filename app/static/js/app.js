@@ -175,32 +175,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.tabs-container').style.display = 'none';
     processingCard.style.display = 'block';
 
-    let progress = 10;
-    progressBar.style.width = '10%';
+    let progress = 15;
+    progressBar.style.width = '15%';
+    processingStepTitle.textContent = isUpload ? 'Subiendo video...' : 'Conectando con Instagram...';
+    processingStepSub.textContent = isUpload ? 'Transfiriendo archivo...' : 'Obteniendo stream de video...';
 
-    const steps = isUpload ? [
-      { p: 30, title: 'Subiendo video...', sub: 'Transfiriendo archivo localmente...' },
-      { p: 65, title: 'Analizando video...', sub: 'Detectando duración con FFmpeg...' },
-      { p: 85, title: 'Recortando final...', sub: 'Eliminando los últimos segundos de Instagram...' },
-      { p: 95, title: 'Generando video limpio...', sub: 'Optimizando para celular y web...' }
-    ] : [
-      { p: 30, title: 'Conectando con Instagram...', sub: 'Buscando servidor de medios...' },
-      { p: 60, title: 'Descargando Reel...', sub: 'Obteniendo stream de video en alta calidad...' },
-      { p: 85, title: 'Eliminando outro...', sub: 'Cortando el logo final de Instagram con FFmpeg...' },
-      { p: 95, title: 'Finalizando...', sub: 'Preparando descarga...' }
-    ];
-
-    let currentStep = 0;
+    if (progressInterval) clearInterval(progressInterval);
+    
+    // Smooth progress increment up to 85% while waiting for network
     progressInterval = setInterval(() => {
-      if (currentStep < steps.length) {
-        const step = steps[currentStep];
-        progress = step.p;
+      if (progress < 85) {
+        progress += Math.floor(Math.random() * 8) + 4;
+        if (progress > 85) progress = 85;
         progressBar.style.width = `${progress}%`;
-        processingStepTitle.textContent = step.title;
-        processingStepSub.textContent = step.sub;
-        currentStep++;
+        
+        if (progress > 30 && progress <= 60) {
+          processingStepTitle.textContent = isUpload ? 'Analizando video...' : 'Descargando Reel...';
+          processingStepSub.textContent = isUpload ? 'Detectando pistas...' : 'Descarga en curso...';
+        } else if (progress > 60) {
+          processingStepTitle.textContent = 'Recortando final con FFmpeg...';
+          processingStepSub.textContent = 'Corte instantáneo sin pérdida...';
+        }
       }
-    }, 1200);
+    }, 400);
   }
 
   function stopProgress() {
@@ -217,25 +214,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Show Results ---
   function showResults(data) {
-    stopProgress();
-    activeResultData = data;
-    
-    // Hide forms, show result
-    urlMode.style.display = 'none';
-    uploadMode.style.display = 'none';
-    document.querySelector('.tabs-container').style.display = 'none';
-    resultCard.style.display = 'block';
+    if (progressInterval) clearInterval(progressInterval);
+    progressBar.style.width = '100%';
+    processingStepTitle.textContent = '¡Completado!';
+    processingStepSub.textContent = 'Video procesado exitosamente.';
 
-    resAuthor.textContent = data.author ? `@${data.author}` : 'Instagram Reel';
-    resTrimmed.textContent = data.seconds_removed > 0 ? `✂️ -${data.seconds_removed}s` : 'Sin corte';
-    resDuration.textContent = `${data.clean_duration}s`;
-    resSize.textContent = `${data.file_size_mb} MB`;
+    setTimeout(() => {
+      processingCard.style.display = 'none';
+      activeResultData = data;
+      
+      // Hide forms, show result
+      urlMode.style.display = 'none';
+      uploadMode.style.display = 'none';
+      document.querySelector('.tabs-container').style.display = 'none';
+      resultCard.style.display = 'block';
 
-    videoPreview.src = data.stream_url;
-    videoPreview.load();
+      resAuthor.textContent = data.author ? `@${data.author}` : 'Instagram Reel';
+      resTrimmed.textContent = data.seconds_removed > 0 ? `✂️ -${data.seconds_removed}s` : 'Sin corte';
+      resDuration.textContent = `${data.clean_duration}s`;
+      resSize.textContent = `${data.file_size_mb} MB`;
 
-    btnDownloadClean.href = data.download_url;
-    btnDownloadClean.setAttribute('download', `Reel_Limpio_${data.file_id}`);
+      videoPreview.src = data.stream_url;
+      videoPreview.load();
+
+      btnDownloadClean.href = data.download_url;
+      btnDownloadClean.setAttribute('download', `Reel_Limpio_${data.file_id}`);
+    }, 250);
   }
 
   // --- Error Handling ---
